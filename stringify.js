@@ -26,7 +26,7 @@ const classReg = /^class/
 const arrowReg = /=\>/
 const funcReg = /^function/
 const asyncFuncReg = /^async\s+function/
-const asyncGeneratorReg = /^async\s+\*/
+const asyncGeneratorReg = /^async\s+\*function/
 
 /**
  * 主函数
