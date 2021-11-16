@@ -126,7 +126,10 @@ function createSymbol(symbol) {
     const description = symbol.description
     const isFor = Symbol.for(description) === symbol
 
-    return isFor ? `Symbol.for('${description}')` : `Symbol('${description}')`
+    function isVoid(val) {
+        return val === undefined || val === ''
+    }
+    return isFor ? `Symbol.for(${isVoid(description) ? '' : `'${description}'`})` : `Symbol(${isVoid(description) ? '' : `'${description}'`})`
 }
 
 function createFunc(func) {
