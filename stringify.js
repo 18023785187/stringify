@@ -1,7 +1,7 @@
 /**
  * 将数组或对象转化为字符串
  */
-const typings = {
+ const typings = {
     number: '[object Number]',
     string: '[object String]',
     boolean: '[object Boolean]',
@@ -11,18 +11,22 @@ const typings = {
     undefined: '[object Undefined]',
     object: '[object Object]',
     array: '[object Array]',
-    function: '[object Function]',
     regExp: '[object RegExp]',
     math: '[object Math]',
-    date: '[object Date]',
     map: '[object Map]',
     set: '[object Set]',
-    generator: '[object GeneratorFunction]'
+    function: '[object Function]',
+    generator: '[object GeneratorFunction]',
+    async: '[object AsyncFunction]',
+    asyncGenerator: '[object AsyncGeneratorFunction]',
+    arrayBuffer: '[object ArrayBuffer]'
 }
 
-const arrowReg = /=\>/s
-const argsReg = /\((.*)\)/
-const codeBlockReg = /\{(.*)\}/s
+const classReg = /^class/
+const arrowReg = /=\>/
+const funcReg = /^function/
+const asyncFuncReg = /^async\s+function/
+const asyncGeneratorReg = /^async\s+\*/
 
 /**
  * 主函数
@@ -68,6 +72,10 @@ function handler(val, type) {
             return createFunc(val)
         case typings.generator:
             return createGenerator(val)
+        case typings.async:
+            return createAsync(val)
+        case typings.asyncGenerator:
+            return createAsyncGenerator(val)
         case typings.object:
             return createObj(val)
         case typings.array:
@@ -76,8 +84,12 @@ function handler(val, type) {
             return createMap(val)
         case typings.set:
             return createSet(val)
+        case typings.regExp:
+            return createRegExp(val)
         case typings.math:
             return createMath()
+        case typings.arrayBuffer:
+            return createBuffer(val)
         default:
             return
     }
@@ -118,25 +130,35 @@ function createSymbol(symbol) {
 }
 
 function createFunc(func) {
-    if (arrowReg.test(func)) {
-        return func.toString()
+    const funcStr = func.toString()
+
+    if (funcReg.test(funcStr) || arrowReg.test(funcStr) || classReg.test(funcStr)) {
+        return funcStr
     } else {
-        func = func.toString()
-        const args = func.match(argsReg)[0]
-        const codeBlock = func.match(codeBlockReg)[0]
-        return `function ${args + codeBlock}`
+        return `function ${funcStr}`
     }
 }
 
 function createGenerator(generator) {
-    if (arrowReg.test(generator)) {
-        return func.toString()
+    const generatorStr = generator.toString()
+
+    return funcReg.test(generatorStr) ? generatorStr : `function ${generatorStr}`
+}
+
+function createAsync(asyncFunc) {
+    const asyncFuncStr = asyncFunc.toString()
+
+    if (asyncFuncReg.test(asyncFuncStr) || arrowReg.test(asyncFuncStr)) {
+        return asyncFuncStr
     } else {
-        generator = generator.toString()
-        const args = generator.match(argsReg)[0]
-        const codeBlock = generator.match(codeBlockReg)[0]
-        return `function *${args + codeBlock}`
+        return asyncFuncStr.replace('async ', 'async function ')
     }
+}
+
+function createAsyncGenerator(asyncGenerator) {
+    const asyncGeneratorStr = asyncGenerator.toString()
+
+    return asyncGeneratorReg.test(asyncGeneratorStr) ? asyncGeneratorStr : asyncGeneratorStr.replace('async *', 'async function*')
 }
 
 function createObj(obj) {
@@ -188,8 +210,16 @@ function createSet(set) {
     return start + createArr([...set]) + end
 }
 
+function createRegExp(regExp) {
+    return regExp
+}
+
 function createMath() {
     return 'Math'
+}
+
+function createBuffer(arrayBuffer) {
+    return `new ArrayBuffer(${arrayBuffer.byteLength})`
 }
 
 /**
