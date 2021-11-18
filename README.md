@@ -1,8 +1,7 @@
 # stringify
 
-<p>
-    stringify可以将对象或数组转化成javascript代码字符串，利用eval执行得到js对象或数组，大多数类型都能够进行转化，解决JSON.stringify转化不了非JSON类型的问题。
-</p>
+<p>stringify可以将对象或数组转化成javascript代码字符串，利用eval执行得到js对象或数组，大多数类型都能够进行转化，解决JSON.stringify转化不了非JSON类型的问题。</p>
+<p>不要滥用stringify，请在特殊情况下才使用stringify，因为stringify的性能会比JSON.stringify慢十倍以上！</p>
 
 ## 用法
 `const strJs = stringify(val)`
